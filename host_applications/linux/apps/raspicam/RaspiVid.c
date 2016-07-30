@@ -55,6 +55,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <string.h>
 #include <memory.h>
 #include <sysexits.h>
+#include <time.h>
 
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -951,11 +952,13 @@ static FILE *open_filename(RASPIVID_STATE *pState)
 {
    FILE *new_handle = NULL;
    char *tempname = NULL, *filename = NULL;
+   char buf[16];
 
    if (pState->segmentSize || pState->splitWait)
    {
       // Create a new filename string
-      asprintf(&tempname, pState->filename, pState->segmentNumber);
+      strftime(buf, sizeof buf, "%Y%m%dT%H%M%S", gmtime(&now));
+      asprintf(&tempname, pState->filename, buf);
       filename = tempname;
    }
    else
@@ -2003,6 +2006,8 @@ static int pause_and_test_abort(RASPIVID_STATE *state, int pause)
 }
 
 
+time_t now = NULL; 
+
 /**
  * Function to wait in various ways (depending on settings)
  *
@@ -2045,10 +2050,12 @@ static int wait_for_next_change(RASPIVID_STATE *state)
    {
       int abort;
 
-      if (state->bCapturing)
+      if (state->bCapturing) {
+         time(&now);
          abort = pause_and_test_abort(state, state->onTime);
-      else
+      } else {
          abort = pause_and_test_abort(state, state->offTime);
+      }
 
       if (abort)
          return 0;
