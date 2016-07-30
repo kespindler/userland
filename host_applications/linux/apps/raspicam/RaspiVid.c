@@ -943,6 +943,7 @@ static void camera_control_callback(MMAL_PORT_T *port, MMAL_BUFFER_HEADER_T *buf
 }
 
 
+time_t now = NULL; 
 /**
  * Open a file based on the settings in state
  *
@@ -2006,7 +2007,6 @@ static int pause_and_test_abort(RASPIVID_STATE *state, int pause)
 }
 
 
-time_t now = NULL; 
 
 /**
  * Function to wait in various ways (depending on settings)
@@ -2039,9 +2039,11 @@ static int wait_for_next_change(RASPIVID_STATE *state)
    case WAIT_METHOD_FOREVER:
    {
       // We never return from this. Expect a ctrl-c to exit.
-      while (1)
+      while (1) {
          // Have a sleep so we don't hog the CPU.
-         vcos_sleep(10000);
+         time(&now);
+         vcos_sleep(1000);
+      }
 
       return 0;
    }
@@ -2051,7 +2053,6 @@ static int wait_for_next_change(RASPIVID_STATE *state)
       int abort;
 
       if (state->bCapturing) {
-         time(&now);
          abort = pause_and_test_abort(state, state->onTime);
       } else {
          abort = pause_and_test_abort(state, state->offTime);
