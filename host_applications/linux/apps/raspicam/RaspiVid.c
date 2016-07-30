@@ -958,7 +958,7 @@ static FILE *open_filename(RASPIVID_STATE *pState)
    if (pState->segmentSize || pState->splitWait)
    {
       // Create a new filename string
-      strftime(buf, sizeof buf, "%Y%m%dT%H%M%S", gmtime(&now));
+      strftime(buf, sizeof buf, "%Y%m%dT%H%M", gmtime(&now));
       asprintf(&tempname, pState->filename, buf);
       filename = tempname;
    }
