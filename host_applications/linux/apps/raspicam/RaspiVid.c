@@ -1263,6 +1263,7 @@ static void encoder_buffer_callback(MMAL_PORT_T *port, MMAL_BUFFER_HEADER_T *buf
 
             pData->pstate->splitNow = 0;
             pData->pstate->segmentNumber++;
+            time(&now);
 
             // Only wrap if we have a wrap point set
             if (pData->pstate->segmentWrap && pData->pstate->segmentNumber > pData->pstate->segmentWrap)
@@ -2039,11 +2040,9 @@ static int wait_for_next_change(RASPIVID_STATE *state)
    case WAIT_METHOD_FOREVER:
    {
       // We never return from this. Expect a ctrl-c to exit.
-      while (1) {
+      while (1)
          // Have a sleep so we don't hog the CPU.
-         time(&now);
-         vcos_sleep(1000);
-      }
+         vcos_sleep(10000);
 
       return 0;
    }
@@ -2052,11 +2051,10 @@ static int wait_for_next_change(RASPIVID_STATE *state)
    {
       int abort;
 
-      if (state->bCapturing) {
+      if (state->bCapturing)
          abort = pause_and_test_abort(state, state->onTime);
-      } else {
+      else
          abort = pause_and_test_abort(state, state->offTime);
-      }
 
       if (abort)
          return 0;
@@ -2138,6 +2136,8 @@ int main(int argc, const char **argv)
    signal(SIGUSR1, SIG_IGN);
 
    default_status(&state);
+
+   time(&now);
 
    // Do we have any parameters
    if (argc == 1)
